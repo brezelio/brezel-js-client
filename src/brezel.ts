@@ -44,7 +44,8 @@ export default class Client {
             apiHeaders['X-Api-Key'] = this.key;
         }
         return fetch(url.toString(), {
-            headers: apiHeaders, credentials: 'include', // send and store cookies from API, e.g. to swap access tokens with sessions for redirect flows
+            headers: apiHeaders,
+            credentials: 'include', // send and store cookies from API, e.g. to swap access tokens with sessions for redirect flows
             method,
             body,
         });
@@ -103,7 +104,6 @@ export default class Client {
      */
     fetchEntity(id: number, module: string, withHistory = false) {
         return this.apiGet(['modules', module, 'resources', id], {history: withHistory || undefined}).then(response => response.json()).then(data => new Entity(data));
-
     }
 
     fetchEntities(module: string, options: EntitiesRequestOptions = {}) {
@@ -145,7 +145,6 @@ export default class Client {
     }
 
     autoSaveEntity(entity: EntityInterface) {
-        // days before discarding
         const discardDate = new Date();
         let lifetime: number | string = entity.module?.options?.auto_save_lifetime || 3;
         const autoSaveLifetime: number = (typeof lifetime === 'string' ? parseInt(lifetime) : lifetime) || 3;

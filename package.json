@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start:watch": "tsc -w",
+    "build": "tsc",
     "test": "ts-mocha --loader=ts-node/esm --transpile-only './test/*.ts'"
   },
   "repository": {
