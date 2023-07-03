@@ -1,0 +1,38 @@
+{
+  "name": "@brezel-js/api-client",
+  "version": "1.0.0",
+  "description": "API client for Brezel",
+  "main": "src/brezel.ts",
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start:watch": "tsc -w",
+    "test": "ts-mocha --loader=ts-node/esm --transpile-only './test/*.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/brezelio/brezel-js-client"
+  },
+  "keywords": [
+    "brezel",
+    "client"
+  ],
+  "author": "flynamic",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/register": "^7.22.5",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.3.2",
+    "@types/sinon": "^10.0.15",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "semantic-release": "^21.0.6",
+    "sinon": "^15.2.0",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
