@@ -5,6 +5,8 @@
       "es2016",
       "dom"
     ],
+    "outDir": "./lib",
+    "declaration": true,
     /* Modules */
     "module": "esnext",
     /* Specify what module code is generated. */
@@ -16,7 +18,9 @@
     /* Enable all strict type-checking options. */
     "skipLibCheck": true
   },
+  "include": ["src"],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "lib"
   ]
 }

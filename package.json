@@ -2,7 +2,8 @@
   "name": "@brezel-js/api-client",
   "version": "1.0.0",
   "description": "API client for Brezel",
-  "main": "src/brezel.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "type": "module",
   "directories": {
     "test": "tests"
