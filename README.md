@@ -1,4 +1,4 @@
-# @brezel-js/api-client
+# @brezel/api-client
 
 This is a simple JavaScript SDK for interacting with the Brezel API.
 
