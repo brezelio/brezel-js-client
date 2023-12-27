@@ -106,10 +106,15 @@ export default class Client {
         return this.apiGet(['modules', module, 'resources', id], {history: withHistory || undefined}).then(response => response.json()).then(data => new Entity(data));
     }
 
-    fetchEntities(module: string, options: EntitiesRequestOptions = {}) {
-        return this.apiGet(['modules', module, 'resources'], {
+    async fetchEntities(module: string, options: EntitiesRequestOptions = {}) {
+        const response = await this.apiGet(['modules', module, 'resources'], {
             ...options,
-        }).then(response => response.json()).then(response => response.data.map((entity: EntityInterface) => new Entity(entity)));
+        });
+        if (response.status >= 400 && response.status < 600) {
+            throw new Error(`Could not fetch entities of module ${module}. Response status: ${response.status}`);
+        }
+        const json = await response.json();
+        return json.data.map((entity: EntityInterface) => new Entity(entity));
     }
 
     fetchView(view: string) {

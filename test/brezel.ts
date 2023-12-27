@@ -1,6 +1,11 @@
-import {expect} from 'chai';
+import {expect, use} from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import sinon, {SinonStub} from 'sinon';
 import Brezel, {Module} from '../src/index.js';
+
+before(async () => {
+    use(chaiAsPromised);
+});
 
 describe('BrezelClient', () => {
     let client: Brezel;
@@ -108,6 +113,13 @@ describe('BrezelClient', () => {
             expect(entities).to.be.an('array');
             expect(entities[0].title).to.equal('Perfect');
             sinon.assert.calledWith(fetchStub, `https://api.example.com/test/modules/module1/resources?filters=${encodeURIComponent(JSON.stringify(payload.filters))}`, sinon.match.any);
+        });
+        it('should throw an error if the response status is not 200', async () => {
+            fetchStub.resolves({
+                status: 500,
+                json: () => Promise.resolve({}),
+            });
+            await expect(client.fetchEntities('module1')).to.be.rejectedWith('Could not fetch entities of module module1. Response status: 500');
         });
     });
 });
