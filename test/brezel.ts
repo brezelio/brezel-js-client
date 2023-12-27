@@ -119,7 +119,7 @@ describe('BrezelClient', () => {
                 status: 500,
                 json: () => Promise.resolve({}),
             });
-            await expect(client.fetchEntities('module1')).to.be.rejectedWith('Could not fetch entities of module module1. Response status: 500');
+            await expect(client.fetchEntities('module1')).to.be.rejectedWith('Could not fetch entities: Invalid response status 500 for https://api.example.com/test/modules/module1/resources');
         });
     });
 });

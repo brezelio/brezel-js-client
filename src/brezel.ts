@@ -34,7 +34,7 @@ export default class Client {
         this.token = options.token;
     }
 
-    apiCall(method = 'GET', path: Path, params = {}, body: BodyInit | null | undefined = undefined, headers: Headers = {}) {
+    async apiCall(method: string, path: Path, params = {}, body: BodyInit | null | undefined = undefined, headers: Headers = {}) {
         const url = path instanceof URL ? path : apiLink(path, params, this.uri, this.system);
         const apiHeaders = Object.assign({}, headers);
         if (this.token) {
@@ -43,12 +43,16 @@ export default class Client {
         if (this.key) {
             apiHeaders['X-Api-Key'] = this.key;
         }
-        return fetch(url.toString(), {
+        const response = await fetch(url.toString(), {
             headers: apiHeaders,
             credentials: 'include', // send and store cookies from API, e.g. to swap access tokens with sessions for redirect flows
             method,
             body,
         });
+        if (response.status >= 400 && response.status < 600) {
+            throw new Error(`Invalid response status ${response.status} for ${url.toString()}`);
+        }
+        return response;
     }
 
     apiGet(path: Path, params: Object = {}, body: BodyInit | null | undefined = undefined, headers: Headers = {}) {
@@ -107,14 +111,15 @@ export default class Client {
     }
 
     async fetchEntities(module: string, options: EntitiesRequestOptions = {}) {
-        const response = await this.apiGet(['modules', module, 'resources'], {
-            ...options,
-        });
-        if (response.status >= 400 && response.status < 600) {
-            throw new Error(`Could not fetch entities of module ${module}. Response status: ${response.status}`);
+        try {
+            const response = await this.apiGet(['modules', module, 'resources'], {
+                ...options,
+            });
+            const json = await response.json();
+            return json.data.map((entity: EntityInterface) => new Entity(entity));
+        } catch (e: unknown) {
+            throw Error(`Could not fetch entities: ${e instanceof Error ? e.message : e}`);
         }
-        const json = await response.json();
-        return json.data.map((entity: EntityInterface) => new Entity(entity));
     }
 
     fetchView(view: string) {
