@@ -11,7 +11,7 @@ export interface Field {
     id: number;
     identifier: string;
     type: string;
-    options: Record<string, unknown>;
+    options?: Record<string, unknown>;
 }
 
 export default class Module {

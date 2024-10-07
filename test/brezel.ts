@@ -69,7 +69,17 @@ describe('BrezelClient', () => {
         it('should call the correct endpoint with the correct payload and method', async () => {
             const entityData = {
                 id: 1,
-                module: {id: 1, identifier: 'module1'},
+                module: {
+                    id: 1,
+                    identifier: 'module1',
+                    fields: [
+                        {
+                            id: 1,
+                            identifier: 'title',
+                            type: 'text',
+                        },
+                    ],
+                },
             };
             fetchStub.resolves({
                 status: 200,
