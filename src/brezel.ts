@@ -91,14 +91,16 @@ export default class Client {
         return event.fire(entity, data, localArgs);
     }
 
-    fetchModules(layouts = false) {
-        return this.apiGet(['modules'], {layouts})
-            .then(response => response.json())
-            .then(data => data.map((module: ModuleInterface) => new Module(module)));
+    async fetchModules(layouts = false): Promise<Module[]> {
+        const response = await this.apiGet(['modules'], {layouts});
+        const data = await response.json();
+        return data.map((module: ModuleInterface) => new Module(module));
     }
 
-    fetchModule(identifier: string) {
-        return this.apiGet(['modules', identifier]).then(response => response.json()).then(data => new Module(data));
+    async fetchModule(identifier: string) {
+        const response = await this.apiGet(['modules', identifier]);
+        const data = await response.json();
+        return new Module(data);
     }
 
     /**
