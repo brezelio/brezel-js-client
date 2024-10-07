@@ -15,6 +15,7 @@ interface EntitiesRequestOptions {
     filters?: Array<Record<string, unknown>> | Array<Array<Record<string, unknown>>>;
     with?: Array<string>;
     page?: number;
+    results?: number;
 }
 
 export type Path = Array<unknown>;
