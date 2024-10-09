@@ -125,6 +125,18 @@ export default class Client {
         }
     }
 
+    async fetchTotalEntities(module: string, options: EntitiesRequestOptions = {}): Promise<number> {
+        try {
+            const response = await this.apiGet(['modules', module, 'resources', 'total'], {
+                ...options,
+            });
+            const json = await response.json();
+            return json.total;
+        } catch (e: unknown) {
+            throw Error(`Could not fetch entities: ${e instanceof Error ? e.message : e}`);
+        }
+    }
+
     fetchView(view: string) {
         return this.apiGet(['views', view]).then(response => response.text());
     }
