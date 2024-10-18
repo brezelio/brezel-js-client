@@ -21,8 +21,10 @@ export type FilterClauses = FilterClause[]
 
 export type DNF = FilterClauses[]
 
+export type DNFConvenience = FilterClauses | DNF
+
 export interface EntitiesRequestOptions {
-    filters?: DNF;
+    filters?: DNFConvenience;
     with?: Array<string>;
     page?: number;
     results?: number;
