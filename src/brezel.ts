@@ -29,7 +29,7 @@ export interface EntitiesRequestOptions {
     page?: number;
     results?: number;
     perPage?: number;
-    includeTrashed?: boolean;
+    includeTrashed?: boolean | string;
 }
 
 export type Path = Array<unknown>;
