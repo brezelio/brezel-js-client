@@ -1,6 +1,7 @@
 export interface ModuleInterface {
-    id?: number;
-    identifier?: string;
+    id: number;
+    identifier: string;
+    fields?: Field[];
 }
 
 export interface ModuleOptions {
@@ -15,12 +16,16 @@ export interface Field {
 }
 
 export default class Module {
-    id?: number;
-    identifier?: string;
-    options?: ModuleOptions;
+    id: number;
+    identifier: string;
+    options: ModuleOptions;
     fields: Field[] = [];
 
     constructor(props: ModuleInterface) {
         Object.assign(this, props);
+        this.id = props.id;
+        this.identifier = props.identifier
+        this.options = {};
+        this.fields = props.fields ?? [];
     }
 }
