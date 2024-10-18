@@ -11,11 +11,22 @@ export interface Options {
     token?: string;
 }
 
-interface EntitiesRequestOptions {
-    filters?: Array<Record<string, unknown>> | Array<Array<Record<string, unknown>>>;
+export type FilterClause = {
+    column: string
+    operator: '=' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'like' | 'is' | 'is not'
+    value: string | number | (string | number)[]
+}
+
+export type FilterClauses = FilterClause[]
+
+export type DNF = FilterClauses[]
+
+export interface EntitiesRequestOptions {
+    filters?: DNF;
     with?: Array<string>;
     page?: number;
     results?: number;
+    perPage?: number;
 }
 
 export type Path = Array<unknown>;
