@@ -29,6 +29,7 @@ export interface EntitiesRequestOptions {
     page?: number;
     results?: number;
     perPage?: number;
+    includeTrashed?: boolean;
 }
 
 export type Path = Array<unknown>;
