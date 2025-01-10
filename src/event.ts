@@ -1,4 +1,4 @@
-import Client from "./brezel";
+import Client, {Path} from "./brezel";
 import {EntityInterface} from "./entity";
 
 interface BrezelEventOptions {
@@ -10,7 +10,7 @@ interface BrezelEventOptions {
 export default class BrezelEvent {
   private readonly identifier: string;
   private readonly module: string | null | undefined;
-  private brezel: Client;
+  private readonly brezel: Client;
 
   constructor(options: BrezelEventOptions) {
     this.identifier = options.identifier;
@@ -18,11 +18,11 @@ export default class BrezelEvent {
     this.brezel = options.brezel;
   }
 
-  fire(entity: EntityInterface | null = null, data = {}, localArgs = {}) {
+  fire(entity: EntityInterface | undefined = undefined, data = {}, localArgs = {}) {
     const entityId = typeof entity === 'object' && entity !== null ? entity.id : entity;
     const body = data ? JSON.stringify(data) : null;
 
-    const apiRequest: Array<unknown> = ['webhook', this.identifier];
+    const apiRequest: Path = ['webhook', this.identifier];
 
     if (this.module) {
       apiRequest.push(this.module);

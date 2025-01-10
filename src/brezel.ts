@@ -25,14 +25,15 @@ export type DNFConvenience = FilterClauses | DNF
 
 export interface EntitiesRequestOptions {
     filters?: DNFConvenience;
-    with?: Array<string>;
+    with?: string[];
     page?: number;
     results?: number;
     perPage?: number;
     includeTrashed?: boolean | string;
+    columns?: string[];
 }
 
-export type Path = Array<unknown>;
+export type Path = (string | number | undefined)[]
 
 type Headers = Record<string, string>;
 
@@ -100,7 +101,7 @@ export default class Client {
      * @param localArgs
      * @return {*|Promise<*>}
      */
-    fireEvent(identifier: string, module: string | null = null, entity: EntityInterface | null = null, data = {}, localArgs = {}) {
+    fireEvent(identifier: string, module: string | null = null, entity: EntityInterface | undefined = undefined, data = {}, localArgs = {}) {
         // Do not look the event up. If it does not exist, event.fire() is rejected with a 404.
         const event = new BrezelEvent({identifier, module, brezel: this});
         return event.fire(entity, data, localArgs);
@@ -197,7 +198,7 @@ export default class Client {
 
     restoreEntity(entity: EntityInterface) {
         return this.apiGet(
-            ['modules', entity.module?.identifier, 'resources', entity.id ?? 0, 'restore', entity.saveId ?? null]).then(response => response.json());
+            ['modules', entity.module?.identifier, 'resources', entity.id ?? 0, 'restore', entity.saveId]).then(response => response.json());
     }
 
     fetchAutosaveDiff(entity: EntityInterface) {
