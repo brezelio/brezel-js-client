@@ -3,6 +3,7 @@ import BrezelEvent from './event.js';
 import {NotificationInterface} from "./notification.js";
 
 export interface ModuleBase {
+    id: number;
     identifier: string;
     type: string;
 }

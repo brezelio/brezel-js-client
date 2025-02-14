@@ -57,8 +57,8 @@ describe('BrezelClient', () => {
                 json: () => Promise.resolve(moduleData),
             });
             const module = await client.fetchModule('module1');
-            expect(module.id).to.equal(moduleData.id);
-            expect(module.identifier).to.equal(moduleData.identifier);
+            expect(module?.id).to.equal(moduleData.id);
+            expect(module?.identifier).to.equal(moduleData.identifier);
             sinon.assert.calledWith(fetchStub, 'https://api.example.com/test/modules/module1', sinon.match.any);
         });
     });
@@ -83,7 +83,7 @@ describe('BrezelClient', () => {
                 status: 200,
                 json: () => Promise.resolve(entityData),
             });
-            await client.createEntity(entityData);
+            await client.createEntity('module1', entityData);
             sinon.assert.calledWith(fetchStub, 'https://api.example.com/test/modules/module1/resources', {
                 headers: sinon.match({
                     'Content-Type': 'application/json',
