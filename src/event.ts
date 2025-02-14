@@ -1,5 +1,4 @@
-import Client, {Path} from "./index.js";
-import {EntityBase} from '@kibro/brezel-spa-types'
+import Client, {EntityBase, Path} from "./index.js";
 
 interface BrezelEventOptions {
     identifier: string;
