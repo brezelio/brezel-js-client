@@ -1,7 +1,19 @@
 import {apiLink} from './util.js';
 import BrezelEvent from './event.js';
 import {NotificationInterface} from "./notification.js";
-import {Module, EntityBase} from "@kibro/brezel-spa-types";
+
+export interface ModuleBase {
+    identifier: string;
+    type: string;
+}
+
+export interface EntityBase {
+    id?: number;
+    module?: {
+        identifier: string;
+    }
+    [p: string]: any;
+}
 
 export interface Options {
     uri: string;
@@ -36,11 +48,11 @@ export type Path = (string | number | undefined)[]
 
 type Headers = Record<string, string>;
 
-type ModuleMapping = Record<string, Pick<Module, 'identifier' | 'type'>>
+type ModuleMapping = Record<string, ModuleBase>
 
 type EntityMapping = Record<string, EntityBase>
 
-export type ModuleByIdentifier<M extends ModuleMapping, Identifier extends keyof M | string> = Identifier extends keyof M ? M[Identifier] : (Module | undefined);
+export type ModuleByIdentifier<M extends ModuleMapping, Identifier extends keyof M | string> = Identifier extends keyof M ? M[Identifier] : (ModuleBase | undefined);
 
 export type EntityOfModule<M extends EntityMapping, Identifier extends keyof M | string> = Identifier extends keyof M ? M[Identifier] : EntityBase;
 
@@ -124,10 +136,10 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
         return event.fire(entity, data, localArgs);
     }
 
-    async fetchModules(layouts = false): Promise<(M[keyof M] & Module)[]> {
+    async fetchModules(layouts = false): Promise<(M[keyof M] & ModuleBase)[]> {
         const response = await this.apiGet(['modules'], {layouts});
         const data = await response.json();
-        return data as (M[keyof M] & Module)[];
+        return data as (M[keyof M] & ModuleBase)[];
     }
 
     async fetchModule<T extends keyof M & string | string>(identifier: T): Promise<ModuleByIdentifier<M, T>> {
