@@ -1,4 +1,4 @@
-import {Path} from "./brezel";
+import {Path} from "./index.js";
 
 export const apiLink = (path: Path, params: Record<string, unknown>, apiUrl: string, system: string | undefined) => {
   // Do not use store

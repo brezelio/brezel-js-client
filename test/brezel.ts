@@ -1,7 +1,7 @@
 import {expect, use} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon, {SinonStub} from 'sinon';
-import Brezel, {Module} from '../src/index.js';
+import Brezel from '../src/index.js';
 
 before(async () => {
     use(chaiAsPromised);
@@ -42,7 +42,6 @@ describe('BrezelClient', () => {
             });
             const modules = await client.fetchModules();
             expect(modules).to.be.an('array');
-            expect(modules[0]).to.be.instanceOf(Module);
             sinon.assert.calledWith(fetchStub, 'https://api.example.com/test/modules?layouts=false', sinon.match.any);
         });
     });
@@ -58,7 +57,6 @@ describe('BrezelClient', () => {
                 json: () => Promise.resolve(moduleData),
             });
             const module = await client.fetchModule('module1');
-            expect(module).to.be.instanceOf(Module);
             expect(module.id).to.equal(moduleData.id);
             expect(module.identifier).to.equal(moduleData.identifier);
             sinon.assert.calledWith(fetchStub, 'https://api.example.com/test/modules/module1', sinon.match.any);

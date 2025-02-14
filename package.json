@@ -23,6 +23,15 @@
   ],
   "author": "flynamic",
   "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "dependencies": {
+    "@kibro/brezel-spa-types": "^4.23.0"
+  },
   "devDependencies": {
     "@babel/register": "^7.22.5",
     "@semantic-release/commit-analyzer": "^10.0.1",
