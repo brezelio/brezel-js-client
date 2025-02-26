@@ -3,9 +3,23 @@ import BrezelEvent from './event.js';
 import {NotificationInterface} from "./notification.js";
 
 export interface ModuleBase {
+    id?: number;
+    identifier: string;
+    type: string;
+}
+
+export interface FieldBase {
     id: number;
     identifier: string;
     type: string;
+    options?: Record<string, unknown>;
+}
+
+export interface Module extends ModuleBase {
+    fields: FieldBase[];
+    options?: {
+        [key: string]: unknown;
+    }
 }
 
 export interface EntityBase {
@@ -137,16 +151,16 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
         return event.fire(entity, data, localArgs);
     }
 
-    async fetchModules(layouts = false): Promise<(M[keyof M] & ModuleBase)[]> {
+    async fetchModules(layouts = false): Promise<(M[keyof M] & Module)[]> {
         const response = await this.apiGet(['modules'], {layouts});
         const data = await response.json();
-        return data as (M[keyof M] & ModuleBase)[];
+        return data as (M[keyof M] & Module)[];
     }
 
-    async fetchModule<T extends keyof M & string | string>(identifier: T): Promise<ModuleByIdentifier<M, T>> {
+    async fetchModule<T extends keyof M & string | string>(identifier: T): Promise<ModuleByIdentifier<M, T> & Module> {
         const response = await this.apiGet(['modules', identifier]);
         const data = await response.json();
-        return data as ModuleByIdentifier<M, T>;
+        return data as ModuleByIdentifier<M, T> & Module;
     }
 
     /**
