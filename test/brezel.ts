@@ -125,9 +125,10 @@ describe('BrezelClient', () => {
         it('should throw an error if the response status is not 200', async () => {
             fetchStub.resolves({
                 status: 500,
-                json: () => Promise.resolve({}),
+                json: () => Promise.resolve({errors: ['Internal server error']}),
+                headers: new Headers({'Content-Type': 'application/json'}),
             });
-            await expect(client.fetchEntities('module1')).to.be.rejectedWith('Could not fetch entities: Invalid response status 500 for https://api.example.com/test/modules/module1/resources');
+            await expect(client.fetchEntities('module1')).to.be.rejectedWith('HTTP 500 Error for https://api.example.com/test/modules/module1/resources: {"errors":["Internal server error"]}');
         });
     });
 });

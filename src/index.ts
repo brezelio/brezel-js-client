@@ -27,6 +27,7 @@ export interface EntityBase {
     module?: {
         identifier: string;
     }
+
     [p: string]: any;
 }
 
@@ -86,7 +87,23 @@ export interface EntityUpdateResponse<E extends EntityBase> extends EntityRespon
 export interface EntityCreateResponse<E extends EntityBase> extends EntityResponse<E> {
 }
 
-export interface TranslationMapping {}
+export interface TranslationMapping {
+}
+
+export class ApiError extends Error {
+    status: number;
+    url: string;
+    responseBody: any;
+    headers: HeadersInit;
+
+    constructor(status: number, url: string, responseBody: any, headers: HeadersInit) {
+        super(`HTTP ${status} Error for ${url}: ${JSON.stringify(responseBody)}`);
+        this.status = status;
+        this.url = url;
+        this.responseBody = responseBody;
+        this.headers = headers;
+    }
+}
 
 export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {}, TM extends TranslationMapping = {}> {
     public uri: string;
@@ -104,25 +121,34 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
     async apiCall(method: string, path: Path, params = {}, body: BodyInit | null | undefined = undefined, headers: Headers = {}) {
         const url = path instanceof URL ? path : apiLink(path, params, this.uri, this.system);
         const apiHeaders = {...headers};
+
         if (this.token) {
             apiHeaders['Authorization'] = 'Bearer ' + this.token;
         }
         if (this.key) {
             apiHeaders['X-Api-Key'] = this.key;
         }
+
         const response = await fetch(url.toString(), {
             headers: apiHeaders,
             credentials: 'include', // send and store cookies from API, e.g. to swap access tokens with sessions for redirect flows
             method,
             body,
         });
-        if (response.status >= 400 && response.status < 600) {
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                throw new Error(`Invalid response status ${response.status} for ${url.toString()}. Error: ${await response.json()}`);
+
+        if (response.status >= 400 && response.status <= 599) { // Handles all error statuses (400-599)
+            const contentType = response.headers?.get('content-type');
+            let responseBody;
+
+            try {
+                responseBody = contentType?.includes('application/json') ? await response.json() : await response.text();
+            } catch (err) {
+                responseBody = 'Failed to parse response';
             }
-            throw new Error(`Invalid response status ${response.status} for ${url.toString()}. Error: ${await response.text()}`);
+
+            throw new ApiError(response.status, url.toString(), responseBody, response.headers);
         }
+
         return response;
     }
 
@@ -178,27 +204,19 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
     }
 
     async fetchEntities<T extends keyof M & string | string>(module: T, options: EntitiesRequestOptions<EntityOfModule<EM, T>> = {}): Promise<EntityOfModule<EM, T>[]> {
-        try {
-            const response = await this.apiGet(['modules', module, 'resources'], {
-                ...options,
-            });
-            const json = await response.json();
-            return json.data as EntityOfModule<EM, T>[];
-        } catch (e: unknown) {
-            throw Error(`Could not fetch entities: ${e instanceof Error ? e.message : e}`);
-        }
+        const response = await this.apiGet(['modules', module, 'resources'], {
+            ...options,
+        });
+        const json = await response.json();
+        return json.data as EntityOfModule<EM, T>[];
     }
 
     async fetchTotalEntities(module: string, options: EntitiesRequestOptions = {}): Promise<number> {
-        try {
-            const response = await this.apiGet(['modules', module, 'resources', 'total'], {
-                ...options,
-            });
-            const json = await response.json();
-            return json.total;
-        } catch (e: unknown) {
-            throw Error(`Could not fetch entities: ${e instanceof Error ? e.message : e}`);
-        }
+        const response = await this.apiGet(['modules', module, 'resources', 'total'], {
+            ...options,
+        });
+        const json = await response.json();
+        return json.total;
     }
 
     async fetchView(view: string) {
@@ -207,7 +225,7 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
     }
 
     async fetchFile(id: EntityBase['id'], size?: 'mini' | 'default') {
-        const response = await this.apiGet(['files', id], { size });
+        const response = await this.apiGet(['files', id], {size});
         return await response.blob();
     }
 
