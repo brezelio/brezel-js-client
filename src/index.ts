@@ -117,7 +117,11 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
             body,
         });
         if (response.status >= 400 && response.status < 600) {
-            throw new Error(`Invalid response status ${response.status} for ${url.toString()}`);
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                throw new Error(`Invalid response status ${response.status} for ${url.toString()}. Error: ${await response.json()}`);
+            }
+            throw new Error(`Invalid response status ${response.status} for ${url.toString()}. Error: ${await response.text()}`);
         }
         return response;
     }
