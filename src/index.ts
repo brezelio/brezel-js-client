@@ -1,6 +1,6 @@
-import {apiLink} from './util.js';
+import { apiLink } from './util.js';
 import BrezelEvent from './event.js';
-import {NotificationInterface} from "./notification.js";
+import { NotificationInterface } from "./notification.js";
 
 export interface ModuleBase {
     id?: number;
@@ -58,6 +58,15 @@ export type EntitiesRequestOptions<T = EntityBase> = {
     perPage?: number;
     includeTrashed?: boolean | string;
     columns?: (keyof T | string)[];
+}
+
+export interface PaginationResponse<T = EntityBase> {
+    data: T[]
+    total: number
+    last_page: number
+    per_page: number
+    current_page: number
+    next_page_url?: string
 }
 
 export type Path = (string | number | undefined)[]
@@ -209,6 +218,65 @@ export class Client<M extends ModuleMapping = {}, EM extends EntityMapping = {},
         });
         const json = await response.json();
         return json.data as EntityOfModule<EM, T>[];
+    }
+
+    async paginateEntities<T extends keyof M & string | string>(module: T, options: EntitiesRequestOptions<EntityOfModule<EM, T>> = {}): Promise<PaginationResponse<EntityOfModule<EM, T>>> {
+        const response = await this.apiGet(['modules', module, 'resources'], {
+            ...options,
+        });
+        return await response.json() as PaginationResponse<EntityOfModule<EM, T>>;
+    }
+
+    async fetchEntitiesPaginated<T extends keyof M & string | string>(module: T, options: EntitiesRequestOptions<EntityOfModule<EM, T>> = {}): Promise<{ data: EntityOfModule<EM, T>[], total: number}> {
+        let currentPage = options.page || 1;
+        const targetResults = options.results;
+
+        let accumulatedData: EntityOfModule<EM, T>[] = [];
+        let total = 0;
+
+        while (true) {
+            // Prepare parameters for the API call.
+            // We remove 'results' to ensure the API performs standard pagination per request.
+            const params = { ...options, page: currentPage };
+            delete params.results;
+
+            const response = await this.apiGet(['modules', module, 'resources'], params);
+            const json = await response.json() as PaginationResponse<EntityOfModule<EM, T>>;
+
+            // Extract data based on the provided JSON structure
+            const pageData = json.data as EntityOfModule<EM, T>[];
+            total = json.total;
+            const lastPage = json.last_page;
+
+            // Add current page results to our collection
+            accumulatedData.push(...pageData);
+
+            // Condition 1: If 'results' was not defined, we behave like a standard single-page fetch.
+            if (targetResults === undefined) {
+                break;
+            }
+
+            // Condition 2: Stop if we have reached the last page available on the server.
+            if (currentPage >= lastPage) {
+                break;
+            }
+
+            // Condition 3: Stop if we have reached or exceeded the specific number of results requested.
+            // (Skipped if targetResults is -1, which means fetch all).
+            if (targetResults !== -1 && accumulatedData.length >= targetResults) {
+                break;
+            }
+
+            currentPage++;
+        }
+
+        // If we fetched more items than requested (due to page size), slice the array to the exact count.
+        // We do not slice if fetching all (-1).
+        if (targetResults !== undefined && targetResults !== -1 && accumulatedData.length > targetResults) {
+            accumulatedData = accumulatedData.slice(0, targetResults);
+        }
+
+        return { data: accumulatedData, total };
     }
 
     async fetchTotalEntities(module: string, options: EntitiesRequestOptions = {}): Promise<number> {
