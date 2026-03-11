@@ -41,7 +41,7 @@ export interface Options {
 export type FilterClause<T = EntityBase> = {
     column: keyof T | string
     operator: '=' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'like' | 'is' | 'is not'
-    value: string | number | (string | number)[]
+    value: string | number | (string | number)[] | null
 }
 
 export type FilterClauses<T = EntityBase> = FilterClause<T>[]
